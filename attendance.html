@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>نظام الحضور - الطالب</title>
+  <style>
+    body {
+      font-family: "Tahoma", sans-serif;
+      background-color: #f9f6ee;
+      margin: 0;
+      padding: 0;
+      direction: rtl;
+    }
+
+    header {
+      background-color: #5c4033;
+      color: #fff;
+      text-align: center;
+      padding: 20px 0;
+      font-size: 26px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .attendance-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: calc(100vh - 100px);
+    }
+
+    .attendance-box {
+      background-color: #fff;
+      border: 2px solid #5c4033;
+      border-radius: 12px;
+      width: 350px;
+      padding: 30px;
+      box-shadow: 0 0 20px rgba(92,64,51,0.2);
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .attendance-box:hover {
+      transform: scale(1.02);
+    }
+
+    .attendance-box h2 {
+      color: #5c4033;
+      margin-bottom: 20px;
+      font-size: 22px;
+    }
+
+    select, input {
+      width: 90%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+      background-color: #fdfaf3;
+      transition: border-color 0.3s;
+    }
+
+    select:focus, input:focus {
+      border-color: #5c4033;
+      outline: none;
+    }
+
+    button {
+      background-color: #5c4033;
+      color: #fff;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #3e2a20;
+    }
+
+    #message {
+      margin-top: 15px;
+      color: #5c4033;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    footer {
+      text-align: center;
+      color: #5c4033;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>نظام الحضور - الطالب</header>
+
+  <div class="attendance-container">
+    <div class="attendance-box">
+      <h2>👋 أهلاً {{ name }}</h2>
+      <p>اختر المادة أو اكتبها إذا لم تكن موجودة:</p>
+
+      <!-- ✅ تسجيل الحضور -->
+      <form action="/attendance" method="post">
+        <!-- الرقم الجامعي يرسل بشكل صحيح -->
+        <input type="hidden" name="student_id" value="{{ student_id }}">
+
+        <select name="course_id">
+          <option value="">-- اختر المادة --</option>
+          <option value="ذكاء اصطناعي">ذكاء اصطناعي</option>
+          <option value="برمجة">برمجة</option>
+          <option value="حوسبة نقالة">حوسبة نقالة</option>
+          <option value="شبكات">شبكات</option>
+        </select>
+        <input type="text" name="course_id_manual" placeholder="أدخل اسم المادة إذا غير موجود">
+        <button type="submit">تسجيل الحضور</button>
+      </form>
+
+      <!-- ✅ زر تأكيد الحضور -->
+      <button id="confirmBtn" style="display:none;">تأكيد الحضور</button>
+
+      <p id="message">{{ message }}</p>
+    </div>
+  </div>
+
+  <footer>© 2026 جامعة الإسراء - جميع الحقوق محفوظة</footer>
+
+  <script>
+    // بعد 15 دقيقة يظهر زر التأكيد
+    setTimeout(() => {
+      document.getElementById("confirmBtn").style.display = "inline-block";
+    }, 900000); // 900000 ملي ثانية = 15 دقيقة
+
+    // عند الضغط على زر التأكيد
+    document.getElementById("confirmBtn").addEventListener("click", () => {
+      fetch("/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `student_id={{ student_id }}`
+      })
+      .then(res => res.text())
+      .then(msg => {
+        document.getElementById("message").innerText = msg;
+      })
+      .catch(err => {
+        document.getElementById("message").innerText = "❌ خطأ في تأكيد الحضور";
+      });
+    });
+  </script>
+</body>
+</html>
